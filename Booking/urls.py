@@ -1,5 +1,5 @@
 from django.urls import path
-from Booking import views
+from booking import views
 
 
 app_name = 'main'
