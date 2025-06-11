@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h3>{{ location.title }}</h3>
+    <p>Capacity: {{ location.capacity }}</p>
+    <p>Price: {{ location.price }}$</p>
+    <p>Description: {{ location.description }}</p>
+    
+    <br>
+
+    <!-- {qdwqd% include 'booking/raiting_form.html' %dwqqdwqd} -->
+<!-- 
+    <br>
+
+    <h4>Reviews:</h4>
+    <ul>
+        {% for review in product.reviews.all %}
+            <li>
+                <p>
+                    <b>{{ review.author }} - {{ review.rating }}/5</b>
+                    {{ review.text }}
+                </p>
+            </li>
+        {% endfor %}
+    </ul> -->
+{% endblock %}
