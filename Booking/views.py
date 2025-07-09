@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
+from django.utils.crypto import get_random_string
+from django.urls import reverse
 from booking.models import BookingItem, Booking
 from config import settings
 
@@ -21,20 +23,27 @@ def location_detail(request, location_id):
     elif request.method == 'POST':
         if not request.user.is_authenticated:
             return render(request, 'booking/location-info.html', context={'location': BookingItem.objects.get(id=location_id), 'error': "Ви повинні увійти в систему"})
-        try: 
-            send_mail(
-                subject='Бронювання локації',
-                message=f"Вітаємо, {request.user.username}! Ви успішно забронювали локацію {BookingItem.objects.get(id=location_id).title} з {request.POST.get('start_date')} по {request.POST.get('end_date')}.",
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[request.user.email],
-                fail_silently=False,
-            )
+        try:
+            token = get_random_string(length=16)
             booking = Booking.objects.create(
                 user=request.user,
                 booking_item=BookingItem.objects.get(id=location_id),
                 start_date=request.POST.get('start_date'),
-                end_date=request.POST.get('end_date')
+                end_date=request.POST.get('end_date'),
+                token=token,
             )
+
+            url=f"{request.scheme}://{request.get_host()}" \
+                f"{reverse('main:activation', args=[booking.pk, token])}"
+            send_mail(
+                subject='Бронювання локації',
+                message=url,
+                # message=f"Вітаємо, {request.user.username}! Ви успішно забронювали локацію {BookingItem.objects.get(id=location_id).title} з {request.POST.get('start_date')} по {request.POST.get('end_date')}.",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[request.user.email],
+                fail_silently=False,
+            )
+            
             booking.save()
             return redirect('main:locations')
         except ValidationError as e:
@@ -71,6 +80,14 @@ def login_user(request):
 
 def logout_user(request):
     logout(request)
+    return redirect('main:locations')
+
+
+def activation(request, booking_id, token):
+    booking = get_object_or_404(Booking, id=booking_id)
+    if booking.token == token:
+        booking.is_confirmed = True
+        booking.save()
     return redirect('main:locations')
 
 #TODO: добавить имейл в регистрацию, добавить проверку через имейл

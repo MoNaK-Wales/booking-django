@@ -30,6 +30,7 @@ class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_confirmed = models.BooleanField(default=False)
+    token = models.CharField(max_length=16)
 
     def clean(self):
         super().clean()
