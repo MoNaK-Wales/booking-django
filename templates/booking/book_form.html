@@ -1,0 +1,16 @@
+<form method="POST" action="" class="card p-4 shadow-sm">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="start_date" class="form-label">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label for="end_date" class="form-label">End Date:</label>
+        <input type="date" id="end_date" name="end_date" class="form-control" required>
+    </div>
+    {% if request.user.is_authenticated %}
+        <button type="submit" class="btn btn-outline-success">Book Now</button>
+    {% else %}
+        <button type="submit" class="btn btn-outline-danger" disabled>Book Now (Login Required)</button>
+    {% endif %}
+</form>

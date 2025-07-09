@@ -1,4 +1,15 @@
-<header style="text-align: center; margin: 0;">
-    <h1 style="color: #ffffff;"><a href="{% url 'main:locations' %}">Booking</a></h1>
-    <hr>
-</header>
+<nav class="navbar navbar-dark bg-primary mb-4">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <a class="navbar-brand h1 mb-0" href="{% url 'main:locations' %}">Booking</a>
+
+        <div>
+            {% if request.user.is_authenticated %}
+                <span class="text-white me-3">Hello, {{ request.user.username }}!</span>
+                <a href="{% url 'main:logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
+            {% else %}
+                <a href="{% url 'main:login' %}" class="btn btn-outline-light btn-sm me-2">Login</a>
+                <a href="{% url 'main:register' %}" class="btn btn-light btn-sm">Register</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
