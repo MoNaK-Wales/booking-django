@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>{{ request.user.username }}</h1>
+    <h4>Email: <b>{{ user.email }}</b></h4>
+    <hr class="border border-primary border-3 opacity-75">
+    <h2>My bookings:</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-12 g-1">
+        {% for booking in bookings %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ booking.booking_item.title }}</h5>
+                        <p class="card-text"><strong>Date:</strong> from {{ booking.start_date }} to {{ booking.end_date }}</p>
+                        {% if booking.is_confirmed %}
+                            <p class="card-text text-success">Confirmed</p>
+                        {% else %}
+                            <p class="card-text text-danger">Not confirmed <a class="text-warning">Confirm?</a></p>
+                        {% endif %}
+                        <a href="{% url 'main:location-info' booking.booking_item.id %}" class="btn btn-primary">View Details Of Place</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

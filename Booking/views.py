@@ -37,8 +37,9 @@ def location_detail(request, location_id):
                 f"{reverse('main:activation', args=[booking.pk, token])}"
             send_mail(
                 subject='Бронювання локації',
+                message=f"Вітаємо, {request.user.username}! Ви забронювали локацію {BookingItem.objects.get(id=location_id).title} з {request.POST.get('start_date')} по {request.POST.get('end_date')}.\n"\
+                        f"Щоб підтвердити бронювання, перейдіть за посиланням: {url}",
                 message=url,
-                # message=f"Вітаємо, {request.user.username}! Ви успішно забронювали локацію {BookingItem.objects.get(id=location_id).title} з {request.POST.get('start_date')} по {request.POST.get('end_date')}.",
                 from_email=settings.EMAIL_HOST_USER,
                 recipient_list=[request.user.email],
                 fail_silently=False,
@@ -82,6 +83,12 @@ def logout_user(request):
     logout(request)
     return redirect('main:locations')
 
+def profile(request):
+    if request.user.is_authenticated:
+        bookings = Booking.objects.filter(user=request.user).all()
+        return render(request, 'booking/profile.html', context={'bookings': bookings})
+    else:
+        return redirect('main:login')
 
 def activation(request, booking_id, token):
     booking = get_object_or_404(Booking, id=booking_id)
@@ -90,4 +97,4 @@ def activation(request, booking_id, token):
         booking.save()
     return redirect('main:locations')
 
-#TODO: добавить имейл в регистрацию, добавить проверку через имейл
+#TODO: добавить имейл в регистрацию, добавить проверку через имейл, добавить подтверждение существующего бронирования
