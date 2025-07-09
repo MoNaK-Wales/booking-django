@@ -1,5 +1,5 @@
 from django.contrib import admin
-from booking.models import BookingItem, Booking
+from booking.models import BookingItem, Booking, Review
 
 # Register your models here.
 # admin.site.register(BookingItem)
@@ -12,3 +12,7 @@ class BookingItemAdmin(admin.ModelAdmin):
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
     list_display = ('booking_item', 'user', 'start_date', 'end_date', 'is_confirmed', 'created_at')
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('place', 'rating', 'created_at')

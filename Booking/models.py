@@ -62,4 +62,14 @@ class Booking(models.Model):
         verbose_name_plural = "Bookings"
 
 
+class Review(models.Model):
+    place = models.ForeignKey(BookingItem, on_delete=models.CASCADE, related_name="reviews")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews")
+    rating = models.PositiveIntegerField()
+    comment = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review by {self.user.username} for {self.place}"
+
 # TODO: сделать страничку сайта, которая будет отображать все локации существующие

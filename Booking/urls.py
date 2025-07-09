@@ -5,5 +5,9 @@ from booking import views
 app_name = 'main'
 
 urlpatterns = [
-    path('', views.home, name='home'),  
+    path('', views.home, name='locations'),
+    path('location/<int:location_id>/', views.location_detail, name='location-info'),  
+    path('register/', views.register, name='register'),
+    path('login/', views.login_user, name='login'),
+    path('logout/', views.logout_user, name='logout'),
 ]

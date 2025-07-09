@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="mb-4">
+        <h2 class="mb-3 text-primary">{{ location.title }}</h2>
+
+        <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item">
+                <strong>Capacity:</strong> {{ location.capacity }}
+            </li>
+            <li class="list-group-item">
+                <strong>Price:</strong> {{ location.price }}$
+            </li>
+            <li class="list-group-item">
+                <strong>Description:</strong>
+                <p class="mt-1 mb-0">{{ location.description }}</p>
+            </li>
+        </ul>
+    </div>
+    
+    <hr class="border border-primary border-3 opacity-75">
+
+    <div class="mb-5">
+        <h4 class="mb-3">Book this location</h4>
+
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        {% include 'booking/book_form.html' %}
+    </div>
+
+{% endblock %}
