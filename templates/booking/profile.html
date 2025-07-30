@@ -14,7 +14,13 @@
                         {% if booking.is_confirmed %}
                             <p class="card-text text-success">Confirmed</p>
                         {% else %}
-                            <p class="card-text text-danger">Not confirmed <a class="text-warning">Confirm?</a></p>
+                            <p class="card-text text-danger">
+                                Not confirmed
+                                <form method="POST" action="" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link p-0 m-0 align-baseline text-warning">Confirm?</button>
+                                </form>
+                            </p>
                         {% endif %}
                         <a href="{% url 'main:location-info' booking.booking_item.id %}" class="btn btn-primary">View Details Of Place</a>
                     </div>
