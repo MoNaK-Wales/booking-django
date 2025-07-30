@@ -25,10 +25,11 @@
                         {% else %}
                             <p class="card-text text-danger">
                                 Not confirmed
-                                <!-- <form method="POST" action="" style="display:inline;">
+                                <form method="POST" action="" style="display:inline;" onsubmit="return showEmailAlert(this);">
                                     {% csrf_token %}
+                                    <input type="hidden" name="booking_id" value="{{ booking.id }}">
                                     <button type="submit" class="btn btn-link p-0 m-0 align-baseline text-warning">Confirm?</button>
-                                </form> -->
+                                </form>
                             </p>
                         {% endif %}
                         <a href="{% url 'main:location-info' booking.booking_item.id %}" class="btn btn-primary">View Details Of Place</a>
@@ -37,4 +38,10 @@
             </div>
         {% endfor %}
     </div>
+    <script>
+        function showEmailAlert(form) {
+            alert("Підтвердження відправлено на ваш email");
+            return true;
+        }
+</script>
 {% endblock %}

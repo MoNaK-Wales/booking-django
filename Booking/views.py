@@ -32,9 +32,7 @@ def location_detail(request, location_id):
                 end_date=request.POST.get('end_date'),
                 token=token,
             )
-
-            
-            booking.save()
+            email_confirmation(request, booking.id)
             return redirect('main:locations')
         except ValidationError as e:
             return render(request, 'booking/location-info.html', context={'location': BookingItem.objects.get(id=location_id), 'error': e.message})
@@ -45,7 +43,13 @@ def profile(request):
         return redirect('auth:login')
     
     if request.method == 'POST':
-        pass
+        booking_id = request.POST.get('booking_id')
+        booking = get_object_or_404(Booking, id=booking_id)
+        new_token = get_random_string(length=16)
+        booking.token = new_token
+        booking.save()
+        email_confirmation(request, booking.id)
+        return redirect('main:profile')
 
     bookings = Booking.objects.filter(user=request.user).all()
     return render(request, 'booking/profile.html', context={'bookings': bookings})
@@ -55,7 +59,7 @@ def activation(request, booking_id, token):
     if booking.token == token:
         booking.is_confirmed = True
         booking.save()
-    return redirect('main:locations')
+    return redirect('main:profile')
 
 def email_confirmation(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
@@ -65,9 +69,8 @@ def email_confirmation(request, booking_id):
                 f"{reverse('main:activation', args=[booking.pk, booking.token])}"
     send_mail(
         subject='Бронювання локації',
-        message=f"Вітаємо, {request.user.username}! Ви забронювали локацію {booking.title} з {booking.start_date} по {booking.end_date}.\n"\
+        message=f"Вітаємо, {request.user.username}! Ви забронювали локацію {booking.booking_item.title} з {booking.start_date} по {booking.end_date}.\n"\
                 f"Щоб підтвердити бронювання, перейдіть за посиланням: {url}",
-        # message=url,
         from_email=settings.EMAIL_HOST_USER,
         recipient_list=[request.user.email],
         fail_silently=False,
