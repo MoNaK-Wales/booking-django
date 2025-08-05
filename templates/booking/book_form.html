@@ -14,3 +14,27 @@
         <button type="submit" class="btn btn-outline-danger" disabled>Book Now (Login Required)</button>
     {% endif %}
 </form>
+
+<script>
+    flatpickr("#start_date", {
+        dateFormat: "d.m.Y",
+        mode: "range",
+        altInput: true,
+        altFormat: "j F, Y",
+        inline: true,
+        weekNumbers: true,
+        locale: {
+            firstDayOfWeek: 1, 
+        },
+        disable: [
+            {% for booking in bookings %}
+            {% endfor %}
+        ],
+    });
+
+    flatpickr("#end_date", {
+        dateFormat: "d.m.Y",
+        altInput: true,
+        altFormat: "j F, Y",
+    });
+</script>

@@ -17,7 +17,12 @@ def location_detail(request, location_id):
     if request.method == 'GET':
         try:
             location = BookingItem.objects.get(id=location_id)
-            return render(request, 'booking/location-info.html', context={'location': location})
+            bookings = location.bookings.all()
+            context = {
+                'location': location,
+                'bookings': bookings,
+            }
+            return render(request, 'booking/location-info.html', context=context)
         except BookingItem.DoesNotExist:
             return redirect('booking:locations')
     elif request.method == 'POST':
