@@ -69,12 +69,18 @@ def profile(request):
         return redirect('auth:login')
     
     if request.method == 'POST':
+        action = request.POST.get("action")
         booking_id = request.POST.get('booking_id')
         booking = get_object_or_404(Booking, id=booking_id)
-        new_token = get_random_string(length=16)
-        booking.token = new_token
-        booking.save()
-        email_confirmation(request, booking.id)
+
+        if action == 'delete':
+            booking.delete()
+        elif action == 'confirm':
+            new_token = get_random_string(length=16)
+            booking.token = new_token
+            booking.save()
+            email_confirmation(request, booking.id)
+        
         return redirect('main:profile')
 
     bookings = Booking.objects.filter(user=request.user).all()
