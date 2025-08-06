@@ -8,7 +8,10 @@
                     <div class="card h-100 shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title">{{ location.title }}</h5>
-                            <p class="card-text"><strong>Price:</strong> {{ location.price }}$</p>
+                            <p class="card-text"><strong>Price:</strong> {{ location.price }}$ per night</p>
+                            <p class="card-text"><strong>Capacity:</strong> {{ location.capacity }} people</p>
+                            <p class="card-text"><strong>Location:</strong> {{ location.location }}</p>
+                            <p class="card-text"><strong>Place:</strong> {{ location.place }}</p>
                             <a href="{% url 'main:location-info' location.id %}" class="btn btn-primary">View Details</a>
                         </div>
                     </div>

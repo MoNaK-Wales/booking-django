@@ -38,9 +38,11 @@ def location_detail(request, location_id):
     elif request.method == 'POST':
         if not request.user.is_authenticated:
             context['error'] = "Будь ласка, увійдіть у свій акаунт, щоб забронювати локацію."
-            return render(request, 'booking/location-info.html', context=context)
-        elif request.POST.get('date') == '': # TODO: после возврата обычный календарь
+        elif request.POST.get('date') == '':
             context['error'] = "Будь ласка, виберіть дати для бронювання."
+        elif len(request.user.bookings.all()) >= 6:
+            context['error'] = "Ви не можете забронювати більше 6 локацій одночасно."
+        if 'error' in context:
             return render(request, 'booking/location-info.html', context=context)
         
         try:
@@ -107,5 +109,3 @@ def email_confirmation(request, booking_id):
         recipient_list=[request.user.email],
         fail_silently=False,
     )
-
-#TODO: добавить имейл в регистрацию, добавить проверку через имейл, добавить подтверждение существующего бронирования

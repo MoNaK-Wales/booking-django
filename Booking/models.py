@@ -10,6 +10,9 @@ class BookingItem(models.Model):
     capacity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=6, decimal_places=2)
     description = models.TextField()
+    location = models.CharField(max_length=100)
+    place = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='media/booking_items/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=False)
 
