@@ -3,6 +3,9 @@ from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.utils.crypto import get_random_string
 from django.urls import reverse
+from django.core.serializers.json import DjangoJSONEncoder
+from datetime import datetime as dt
+import json
 from booking.models import BookingItem, Booking
 from config import settings
 
@@ -14,30 +17,48 @@ def locations(request):
     return render(request, 'booking/locations.html', context={'locations': BookingItem.objects.all()})
 
 def location_detail(request, location_id):
+    try:
+        location = BookingItem.objects.get(id=location_id)
+        bookings = location.bookings.all()
+        disable_intervals = []
+        for booking in bookings:
+            start = booking.start_date.strftime("%Y-%m-%d")
+            end = booking.end_date.strftime("%Y-%m-%d")
+            disable_intervals.append({"from": start, "to": end})
+        disable_intervals = json.dumps(disable_intervals, cls=DjangoJSONEncoder)
+        context = {
+            'location': location,
+            'disable': disable_intervals,
+        }
+    except BookingItem.DoesNotExist:
+        return redirect('booking:locations')
+    
     if request.method == 'GET':
-        try:
-            location = BookingItem.objects.get(id=location_id)
-            bookings = location.bookings.all()
-            context = {
-                'location': location,
-                'bookings': bookings,
-            }
-            return render(request, 'booking/location-info.html', context=context)
-        except BookingItem.DoesNotExist:
-            return redirect('booking:locations')
+        return render(request, 'booking/location-info.html', context=context)
     elif request.method == 'POST':
         if not request.user.is_authenticated:
-            return render(request, 'booking/location-info.html', context={'location': BookingItem.objects.get(id=location_id), 'error': "Ви повинні увійти в систему"})
+            context['error'] = "Будь ласка, увійдіть у свій акаунт, щоб забронювати локацію."
+            return render(request, 'booking/location-info.html', context=context)
+        elif request.POST.get('date') == '': # TODO: после возврата обычный календарь
+            context['error'] = "Будь ласка, виберіть дати для бронювання."
+            return render(request, 'booking/location-info.html', context=context)
+        
         try:
+            date_range = request.POST.get('date')
+            start_date, end_date = date_range.split(' to ')
+            start_date = dt.strptime(start_date, '%d.%m.%Y').date()
+            end_date = dt.strptime(end_date, '%d.%m.%Y').date()
+
             token = get_random_string(length=16)
             booking = Booking.objects.create(
                 user=request.user,
                 booking_item=BookingItem.objects.get(id=location_id),
-                start_date=request.POST.get('start_date'),
-                end_date=request.POST.get('end_date'),
+                start_date=start_date,
+                end_date=end_date,
                 token=token,
             )
             email_confirmation(request, booking.id)
+
             return redirect('main:locations')
         except ValidationError as e:
             return render(request, 'booking/location-info.html', context={'location': BookingItem.objects.get(id=location_id), 'error': e.message})
