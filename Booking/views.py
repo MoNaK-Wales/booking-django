@@ -14,7 +14,12 @@ def home(request):
     return render(request, 'booking/home.html')
 
 def locations(request):
-    return render(request, 'booking/locations.html', context={'locations': BookingItem.objects.all()})
+    search_query = request.GET.get('q', '')
+    if search_query:
+        locations = BookingItem.objects.filter(title__icontains=search_query, is_active=True)
+    else:
+        locations = BookingItem.objects.filter(is_active=True)
+    return render(request, 'booking/locations.html', context={'locations': locations})
 
 def location_detail(request, location_id):
     try:
