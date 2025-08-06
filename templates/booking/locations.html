@@ -1,15 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
-    <h3 class="mb-4">Locations:</h3>
+    <h3 class="mb-4 text-primary">Locations:</h3>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for location in locations %}
             {% if location.is_active %}
                 <div class="col">
-                    <div class="card h-100 shadow-sm">
+                    <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+                        {% if location.image %}
+                            <img src="{{ location.image.url }}" class="card-img-top" alt="{{ location.title }}"
+                                 style="height: 200px; object-fit: cover;">
+                        {% endif %}
                         <div class="card-body">
                             <h5 class="card-title">{{ location.title }}</h5>
-                            <p class="card-text"><strong>Price:</strong> {{ location.price }}$</p>
-                            <a href="{% url 'main:location-info' location.id %}" class="btn btn-primary">View Details</a>
+                            <p class="card-text mb-1"><strong>Price:</strong> {{ location.price }}$ per night</p>
+                            <p class="card-text mb-1"><strong>Capacity:</strong> {{ location.capacity }} people</p>
+                            <p class="card-text mb-1"><strong>Location:</strong> {{ location.location }}</p>
+                            <p class="card-text mb-2"><strong>Place:</strong> {{ location.place }}</p>
+                            <a href="{% url 'main:location-info' location.id %}" class="btn btn-outline-primary w-100 mt-2">
+                                View Details
+                            </a>
                         </div>
                     </div>
                 </div>

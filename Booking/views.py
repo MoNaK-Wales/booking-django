@@ -3,6 +3,9 @@ from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.utils.crypto import get_random_string
 from django.urls import reverse
+from django.core.serializers.json import DjangoJSONEncoder
+from datetime import datetime as dt
+import json
 from booking.models import BookingItem, Booking
 from config import settings
 
@@ -11,28 +14,58 @@ def home(request):
     return render(request, 'booking/home.html')
 
 def locations(request):
-    return render(request, 'booking/locations.html', context={'locations': BookingItem.objects.all()})
+    search_query = request.GET.get('q', '')
+    if search_query:
+        locations = BookingItem.objects.filter(title__icontains=search_query, is_active=True)
+    else:
+        locations = BookingItem.objects.filter(is_active=True)
+    return render(request, 'booking/locations.html', context={'locations': locations})
 
 def location_detail(request, location_id):
+    try:
+        location = BookingItem.objects.get(id=location_id)
+        bookings = location.bookings.all()
+        disable_intervals = []
+        for booking in bookings:
+            start = booking.start_date.strftime("%Y-%m-%d")
+            end = booking.end_date.strftime("%Y-%m-%d")
+            disable_intervals.append({"from": start, "to": end})
+        disable_intervals = json.dumps(disable_intervals, cls=DjangoJSONEncoder)
+        context = {
+            'location': location,
+            'disable': disable_intervals,
+        }
+    except BookingItem.DoesNotExist:
+        return redirect('booking:locations')
+    
     if request.method == 'GET':
-        try:
-            location = BookingItem.objects.get(id=location_id)
-            return render(request, 'booking/location-info.html', context={'location': location})
-        except BookingItem.DoesNotExist:
-            return redirect('booking:locations')
+        return render(request, 'booking/location-info.html', context=context)
     elif request.method == 'POST':
         if not request.user.is_authenticated:
-            return render(request, 'booking/location-info.html', context={'location': BookingItem.objects.get(id=location_id), 'error': "Ви повинні увійти в систему"})
+            context['error'] = "Будь ласка, увійдіть у свій акаунт, щоб забронювати локацію."
+        elif request.POST.get('date') == '':
+            context['error'] = "Будь ласка, виберіть дати для бронювання."
+        elif len(request.user.bookings.all()) >= 6:
+            context['error'] = "Ви не можете забронювати більше 6 локацій одночасно."
+        if 'error' in context:
+            return render(request, 'booking/location-info.html', context=context)
+        
         try:
+            date_range = request.POST.get('date')
+            start_date, end_date = date_range.split(' to ')
+            start_date = dt.strptime(start_date, '%d.%m.%Y').date()
+            end_date = dt.strptime(end_date, '%d.%m.%Y').date()
+
             token = get_random_string(length=16)
             booking = Booking.objects.create(
                 user=request.user,
                 booking_item=BookingItem.objects.get(id=location_id),
-                start_date=request.POST.get('start_date'),
-                end_date=request.POST.get('end_date'),
+                start_date=start_date,
+                end_date=end_date,
                 token=token,
             )
             email_confirmation(request, booking.id)
+
             return redirect('main:locations')
         except ValidationError as e:
             return render(request, 'booking/location-info.html', context={'location': BookingItem.objects.get(id=location_id), 'error': e.message})
@@ -43,12 +76,18 @@ def profile(request):
         return redirect('auth:login')
     
     if request.method == 'POST':
+        action = request.POST.get("action")
         booking_id = request.POST.get('booking_id')
         booking = get_object_or_404(Booking, id=booking_id)
-        new_token = get_random_string(length=16)
-        booking.token = new_token
-        booking.save()
-        email_confirmation(request, booking.id)
+
+        if action == 'delete':
+            booking.delete()
+        elif action == 'confirm':
+            new_token = get_random_string(length=16)
+            booking.token = new_token
+            booking.save()
+            email_confirmation(request, booking.id)
+        
         return redirect('main:profile')
 
     bookings = Booking.objects.filter(user=request.user).all()
@@ -75,5 +114,3 @@ def email_confirmation(request, booking_id):
         recipient_list=[request.user.email],
         fail_silently=False,
     )
-
-#TODO: добавить имейл в регистрацию, добавить проверку через имейл, добавить подтверждение существующего бронирования

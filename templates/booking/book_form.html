@@ -1,12 +1,8 @@
 <form method="POST" action="" class="card p-4 shadow-sm">
     {% csrf_token %}
     <div class="mb-3">
-        <label for="start_date" class="form-label">Start Date:</label>
-        <input type="date" id="start_date" name="start_date" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label for="end_date" class="form-label">End Date:</label>
-        <input type="date" id="end_date" name="end_date" class="form-control" required>
+        <label for="date" class="form-label">Select Dates:</label>
+        <input type="date" id="date" name="date" class="form-control" data-disable='{{ disable|safe }}'' required>
     </div>
     {% if request.user.is_authenticated %}
         <button type="submit" class="btn btn-outline-success">Book Now</button>
@@ -14,3 +10,24 @@
         <button type="submit" class="btn btn-outline-danger" disabled>Book Now (Login Required)</button>
     {% endif %}
 </form>
+
+<script>
+    const disabledRanges = document.getElementById("date").dataset.disable;
+    console.log(disabledRanges);
+    flatpickr("#date", {
+        dateFormat: "d.m.Y",
+        mode: "range",
+        weekNumbers: true,
+        locale: {
+            firstDayOfWeek: 1, 
+        },
+        disable: JSON.parse(disabledRanges),
+        minDate: new Date().fp_incr(1), 
+        onClose: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length !== 2 || selectedDates[0].getTime() === selectedDates[1].getTime()) {
+                alert("Будь ласка, виберіть обидві різні дати.");
+                instance.clear();
+            }
+        },
+    });
+</script>

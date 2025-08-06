@@ -1,30 +1,30 @@
-<nav class="navbar navbar-expand-lg" style="background-color: #1565c0;">
-    <div class="container-fluid">
-        <a class="navbar-brand text-white fw-bold" href="{% url 'main:home' %}">BlueStay</a>
+<nav class="navbar navbar-expand-lg shadow-sm rounded-3" style="background-color: #e9f0fb;">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold text-primary" href="{% url 'main:home' %}">BlueStay</a>
 
-        <!-- Поиск -->
-        <form class="d-none d-md-flex mx-auto" role="search" action="{% url 'main:locations' %}" method="get" style="max-width: 400px; width: 100%;">
-            <div class="input-group">
-                <input type="search" name="q" class="form-control form-control-sm border-0 shadow-sm"
-                       placeholder="Search..." aria-label="Search"
-                       style="border-radius: 999px 0 0 999px;">
-                <button class="btn btn-light btn-sm" type="submit" style="border-radius: 0 999px 999px 0;">
-                    <i class="bi bi-search"></i>
-                </button>
-            </div>
-        </form>
+    <!-- Поиск -->
+    <form class="d-none d-md-flex mx-auto" role="search" action="{% url 'main:locations' %}" method="get" style="max-width: 400px; width: 100%;">
+      <div class="input-group">
+        <input type="search" name="q" class="form-control form-control-sm border-0 shadow-sm"
+               placeholder="Search..." aria-label="Search"
+               style="border-radius: 999px 0 0 999px;">
+        <button class="btn btn-primary btn-sm" type="submit" style="border-radius: 0 999px 999px 0;">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </form>
 
-        <!-- Профиль / Вход / Регистрация -->
-        <div class="d-flex align-items-center">
-            {% if request.user.is_authenticated %}
-                <a href="{% url 'main:profile' %}" class="btn btn-outline-light btn-sm me-2">
-                    {{ request.user.username }}
-                </a>
-                <a href="{% url 'auth:logout' %}" class="btn btn-light btn-sm">Logout</a>
-            {% else %}
-                <a href="{% url 'auth:login' %}" class="btn btn-outline-light btn-sm me-2">Login</a>
-                <a href="{% url 'auth:register' %}" class="btn btn-light btn-sm">Register</a>
-            {% endif %}
-        </div>
+    <!-- Профиль / Вход / Регистрация -->
+    <div class="d-flex align-items-center">
+      {% if request.user.is_authenticated %}
+        <a href="{% url 'main:profile' %}" class="btn btn-outline-primary btn-sm me-2">
+          {{ request.user.username }}
+        </a>
+        <a href="{% url 'auth:logout' %}" class="btn btn-primary btn-sm">Logout</a>
+      {% else %}
+        <a href="{% url 'auth:login' %}" class="btn btn-outline-primary btn-sm me-2">Login</a>
+        <a href="{% url 'auth:register' %}" class="btn btn-primary btn-sm">Register</a>
+      {% endif %}
     </div>
+  </div>
 </nav>
